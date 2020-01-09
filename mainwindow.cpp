@@ -6,7 +6,6 @@
 
 #include <QtCore/QDir>
 
-//#include <ImageMagick-6/Magick++.h>
 #include "Magick++.h"
 
 //#include "conf.h"
@@ -62,15 +61,14 @@ MainWindow::MainWindow(QMainWindow *parent) :
         // dir not exists ... create
         if (boost::filesystem::create_directory(thumbdir)) {
             std::cerr << "debug - line: " << __LINE__ << " - file: " << __FILE__ << std::endl;
-//            std::cerr << "Directory Created: " << conf->map_conf["thumbdir"] << std::endl;
+            std::cerr << "Directory Created: " << conf->map_conf["thumbdir"] << std::endl;
         } else {
             // cannot create dir ... quit
             std::cerr << "debug - line: " << __LINE__ << " - file: " << __FILE__ << std::endl;
-//            std::cerr << "ERR - dir not created: " << conf->map_conf["thumbdir"] << std::endl;
+            std::cerr << "ERR - dir not created: " << conf->map_conf["thumbdir"] << std::endl;
             return;
         }
     }
-
 
 //    boost_thumbdir /= conf->map_conf["thumbsize"] + "x" + conf->map_conf["thumbsize"];
 ////    boost::filesystem::path pathdir2 = pathdir / dir2;
@@ -124,6 +122,9 @@ MainWindow::MainWindow(QMainWindow *parent) :
 //    QString hn = QHostInfo::localHostName();
 //    hostname = hn.toStdString();
 ////    std::cerr << hostname << std::endl;
+
+
+
 
 //    // LAYOUT
 ////    QHBoxLayout *mainlayout = new QHBoxLayout;

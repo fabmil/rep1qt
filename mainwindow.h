@@ -37,7 +37,7 @@ class MainWindow : public QMainWindow
 //    Q_OBJECT
 private:
     int thumbsize = 128;
-    std::string thumbdir = "thumbs";
+    std::string thumbdir = "qwe";
 
 public:
     Conf *conf;
