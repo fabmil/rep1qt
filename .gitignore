@@ -4,7 +4,7 @@ Makefile
 conf.txt
 docs*
 tag12.db
-#tag12qt.pro*
+tag12qt.pro*
 tag5.db
 tag5.db*
 tag6.db*
@@ -22,4 +22,4 @@ thumbs*
 tempfile.jpeg
 tag12qt
 rep1qt
-#rep1qt.pro
+rep1qt.pro
