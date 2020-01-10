@@ -37,7 +37,7 @@ class MainWindow : public QMainWindow
 //    Q_OBJECT
 private:
     int thumbsize = 128;
-    std::string thumbdir = "qwe";
+    std::string thumbdir = "thumbs";
 
 public:
     Conf *conf;
@@ -56,7 +56,7 @@ public:
     QLabel *lbl_seltag;
     LV_ImgInfo *lv_imginfo;
 
-    explicit MainWindow(QMainWindow *parent = 0);
+    explicit MainWindow(QMainWindow *parent = nullptr);
     ~MainWindow();
 //    void addTreeRoot(QString name, QString description);
 //    TreWidTags *trewid_tags;

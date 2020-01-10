@@ -61,11 +61,11 @@ MainWindow::MainWindow(QMainWindow *parent) :
         // dir not exists ... create
         if (boost::filesystem::create_directory(thumbdir)) {
             std::cerr << "debug - line: " << __LINE__ << " - file: " << __FILE__ << std::endl;
-            std::cerr << "Directory Created: " << conf->map_conf["thumbdir"] << std::endl;
+            std::cerr << "Directory Created: " << thumbdir << std::endl;
         } else {
             // cannot create dir ... quit
             std::cerr << "debug - line: " << __LINE__ << " - file: " << __FILE__ << std::endl;
-            std::cerr << "ERR - dir not created: " << conf->map_conf["thumbdir"] << std::endl;
+            std::cerr << "ERR - dir not created: " << thumbdir << std::endl;
             return;
         }
     }
@@ -126,311 +126,311 @@ MainWindow::MainWindow(QMainWindow *parent) :
 
 
 
-//    // LAYOUT
-////    QHBoxLayout *mainlayout = new QHBoxLayout;
+    // LAYOUT
+//    QHBoxLayout *mainlayout = new QHBoxLayout;
 
-//    QVBoxLayout *vlay_main = new QVBoxLayout;
-//    QHBoxLayout *hlay_tags_imgs = new QHBoxLayout;
+    QVBoxLayout *vlay_main = new QVBoxLayout;
+    QHBoxLayout *hlay_tags_imgs = new QHBoxLayout;
 
-//    QSplitter *vsplit_main = new QSplitter;
-//    vsplit_main->setOrientation(Qt::Vertical);
+    QSplitter *vsplit_main = new QSplitter;
+    vsplit_main->setOrientation(Qt::Vertical);
 
-//    QSplitter *hsplit_tags_imgs = new QSplitter;
-//    hsplit_tags_imgs->setOrientation(Qt::Horizontal);
+    QSplitter *hsplit_tags_imgs = new QSplitter;
+    hsplit_tags_imgs->setOrientation(Qt::Horizontal);
 
-////    // ----------------
-////    // -- Info line - selected tags count
-////    // ----------------
-////    lbl_seltags_count = new QLabel();
+//    // ----------------
+//    // -- Info line - selected tags count
+//    // ----------------
+//    lbl_seltags_count = new QLabel();
 
+
+    /*
+     * -------------------
+     * Tags Treeview
+     * -------------------
+     */
+    std::vector<Tag> tags;
+    try {
+        tags = db_get_recs(db);
+    } catch (MyEx& ex) {
+        std::cout << ex.what() << ex.get_info() << std::endl;
+        std::cout << "Function: " << ex.get_func() << std::endl;
+        return;
+    }
+    tv_tags = new TV_Tags(this);
+    tv_tags->db = db;
+    tv_tags->add_tags(tags);
+    tv_tags->conf = conf;
+    tv_tags->expandAll();
+
+
+    QSplitter *vsplit_tags = new QSplitter;
+    vsplit_tags->setOrientation(Qt::Vertical);
+
+    lbl_seltag = new QLabel();//    lv_tag = new LV_Tag();
+
+    vsplit_tags->addWidget(tv_tags);
+    vsplit_tags->addWidget(lbl_seltag);
+    vsplit_tags->setStretchFactor(0, 1);
+    vsplit_tags->setStretchFactor(1, 0);
+
+//    split_tags_fils->addWidget(trevie_tags);
+    hsplit_tags_imgs->addWidget(vsplit_tags);
+    hlay_tags_imgs->addWidget(hsplit_tags_imgs);
+
+
+    /*
+     * -------------------
+     * Thumbnails Listview
+     * -------------------
+     */
+    lv_imgs = new LV_Imgs(this);
+//    lstvie_obs->setViewMode(QListWidget::IconMode);
+//    lstvie_obs->setIconSize(QSize(200,200));
+//    lstvie_obs->setResizeMode(QListWidget::Adjust);
+    lv_imgs->init();
+//    QStandardItemModel *model = new QStandardItemModel(lv_imgs);
+//    lv_imgs->setModel(model);
+//    lv_imgs->model = model;
+//    lv_imgs->setViewMode(QListView::IconMode);
+//    lv_imgs->setAcceptDrops(true);
+
+    lv_imgs->conf = conf;
+    lv_imgs->setSpacing(8);
+    lv_imgs->db = db;
+
+//    connect(lv_imgs, SIGNAL(clicked(QModelIndex)), this, SLOT(on_lv_img_doubleClicked(QModelIndex)));
+//    connect(lv_imgs, &LV_Imgs::doubleClicked, this, &MainWindow::on_lv_img_doubleClicked);
+//        connect(lv_imgs, &LV_Imgs::doubleClicked, this, &abc);
+//        connect(lv_imgs, &LV_Imgs::doubleClicked, this, &MainWindow::on_lv_img_doubleClicked);
+    connect(lv_imgs, &LV_Imgs::doubleClicked, lv_imgs, &LV_Imgs::on_lv_img_doubleClicked);
+
+//    QSplitter *split_imgs = new QSplitter;
+//    split_imgs->setOrientation(Qt::Vertical);
+
+//    lbl_date = new QLabel();
+
+//    split_imgs->addWidget(lv_imgs);
+//    split_imgs->addWidget(lbl_date);
+//    split_imgs->setStretchFactor(0, 1);
+//    split_imgs->setStretchFactor(1, 0);
+
+
+    QSplitter *hsplit_imgs = new QSplitter;
+//    vsplit_imgs->setOrientation(Qt::Vertical);
+    hsplit_imgs->setOrientation(Qt::Horizontal);
+//    lbl_imgdate = new QLabel("lbl_imgdate");
+//    QString lbl_css = "QLabel { background-color : red; color : blue; }";
+//    lbl_imgdate->setStyleSheet("QLabel { background-color : red; color : blue; }");
+//    lbl_imgdate->setStyleSheet(lbl_css);
+    hsplit_imgs->addWidget(lv_imgs);
+
+    lv_imginfo = new LV_ImgInfo();
+    lv_imginfo->init();
+
+//    QWidget *wid_img_info = new QWidget;
+//    QHBoxLayout *hlay_img_info = new QHBoxLayout;
+//    wid_img_info->setLayout(hlay_img_info);
+//    lbl_imgtag1 = new QLabel("lbl_imgtag1");
+//    lbl_imgtag1->setStyleSheet(lbl_css);
+//    hlay_img_info->addWidget(lbl_imgdate);
+//    hlay_img_info->addWidget(lbl_imgtag1);
+//    hlay_img_info->addStretch(1);
+    hsplit_imgs->addWidget(lv_imginfo);
+
+    hsplit_imgs->setStretchFactor(0, 1);
+    hsplit_imgs->setStretchFactor(1, 0);
+
+    hsplit_tags_imgs->addWidget(hsplit_imgs);
+    hsplit_tags_imgs->setStretchFactor(0, 0);
+    hsplit_tags_imgs->setStretchFactor(1, 1);
+
+/*
+ * LAYOUT
+ *
+ * QWidget *window
+ *   QVBoxLayout *vlay_main
+ *     QSplitter *vsplit_main
+ *       QWidget *wid_tags_imgs
+ *         QHBoxLayout *hlay_tags_imgs
+ *           QSplitter *hsplit_tags_imgs
+ *             QSplitter *vsplit_tags
+ *               tv_tags = new TV_Tags(this);
+ *               lbl_seltag = new QLabel();
+ *             QSplitter *hsplit_imgs
+ *               lv_imgs = new LV_Imgs(this);
+ *               lv_imginfo = new QListView();
+ *       QWidget *wid_info
+ *         QVBoxLayout *vlay_btns_info
+ *           QHBoxLayout *hlay_btns
+ *             lbl_markedtagid = new QLabel();
+ *             lbl_markedtagdes = new QLabel();
+ *             lbl_msg = new QLabel();
+ *             lbl_copied_tags = new QLabel();
+ *           pb = new QProgressBar();
+ *           QHBoxLayout *hlay_info
+ *             QLabel *lbl_info_tagssize = new QLabel();
+ *             QLabel *lbl_info_nfils_lbl = new QLabel("num fils:");
+ *             lbl_info_nfils_n = new QLabel();
+ *
+ */
+
+
+
+
+    // ----------------
+    // Info frame
+    // ----------------
+    QVBoxLayout *vlay_btns_info = new QVBoxLayout;
+    QHBoxLayout *hlay_info = new QHBoxLayout;
+
+    // ----------------
+    // -- Buttons
+    // ----------------
+    QHBoxLayout *hlay_btns = new QHBoxLayout;
 
 //    /*
-//     * -------------------
-//     * Tags Treeview
-//     * -------------------
+//     * Refresh treeview
 //     */
-//    std::vector<Tag> tags;
-//    try {
-//        tags = db_get_tags(db);
-//    } catch (MyEx& ex) {
-//        std::cout << ex.what() << ex.get_info() << std::endl;
-//        std::cout << "Function: " << ex.get_func() << std::endl;
-//        return;
+//    QPushButton *btn_refresh = new QPushButton("refresh");
+//    btn_refresh->setStyleSheet("QPushButton:hover { color : red }");
+//    hbox_btns->addWidget(btn_refresh);
+
+//    QPushButton *btn_untagged = new QPushButton("untagged");
+//    hbox_btns->addWidget(btn_untagged);
+
+//    lbl_markedtaglbl = new QLabel();
+//    lbl_markedtaglbl->setText("marked tag");
+////    lbl_markedtaglbl->setStyleSheet("QLabel { background-color : blue; color : white; }");
+//    hbox_btns->addWidget(lbl_markedtaglbl);
+
+    lbl_markedtagid = new QLabel();
+    lbl_markedtagid->setText("");
+//    lbl_markedtagid->setStyleSheet("QLabel { background-color : blue; color : white; }");
+    hlay_btns->addWidget(lbl_markedtagid);
+
+    lbl_markedtagdes = new QLabel();
+    lbl_markedtagdes->setText("");
+//    lbl_markedtagid->setStyleSheet("QLabel { background-color : green; color : white; }");
+    hlay_btns->addWidget(lbl_markedtagdes);
+
+    lbl_msg = new QLabel();
+    lbl_msg->setText("");
+//    lbl_markedtagid->setStyleSheet("QLabel { background-color : black; color : white; }");
+    hlay_btns->addWidget(lbl_msg);
+
+    lbl_copied_tags = new QLabel();
+    lbl_copied_tags->setText("");
+//    lbl_markedtagid->setStyleSheet("QLabel { background-color : black; color : white; }");
+    hlay_btns->addWidget(lbl_copied_tags);
+
+    hlay_btns->addStretch(1);
+
+    // ----------------
+    // -- Progress bar
+    // ----------------
+    pb = new QProgressBar();
+
+    // ----------------
+    // -- Info line - tagsize
+    // ----------------
+    QLabel *lbl_info_tagssize = new QLabel();
+    lbl_info_tagssize->setText("tags:" + QString::number(tags.size()));
+    hlay_info->addWidget(lbl_info_tagssize);
+
+
+    // Show number of fils in lstvie
+    QLabel *lbl_info_nfils_lbl = new QLabel("num fils:");
+    hlay_info->addWidget(lbl_info_nfils_lbl);
+    lbl_info_nfils_n = new QLabel();
+    lbl_info_nfils_n->setText("0");
+    hlay_info->addWidget(lbl_info_nfils_n);
+
+    hlay_info->addStretch(1);
+
+    vlay_btns_info->addLayout(hlay_btns);
+    vlay_btns_info->addWidget(pb);
+    vlay_btns_info->addLayout(hlay_info);
+
+
+
+    QWidget *wid_tags_imgs = new QWidget;
+    wid_tags_imgs->setLayout(hlay_tags_imgs);
+
+    QWidget *wid_info = new QWidget;
+    wid_info->setLayout(vlay_btns_info);
+
+    vsplit_main->addWidget(wid_tags_imgs);
+    vsplit_main->addWidget(wid_info);
+    vsplit_main->setStretchFactor(0, 1);
+    vsplit_main->setStretchFactor(1, 0);
+    vlay_main->addWidget(vsplit_main);
+
+    QWidget *window = new QWidget();
+    window->setLayout(vlay_main);
+
+    // Set QWidget as the central layout of the main window
+    setCentralWidget(window);
+
+
+
+    // STYLESHEETS
+////    setStyleSheet("QTreeView:item:hover { border: 1px solid #6a6ea9; background: lightblue;}");
+//    QFile File(":/stylesheet.qss");
+//    File.open(QFile::ReadOnly);
+//    QString StyleSheet = QLatin1Strging(File.readAll());
+//    setStyleSheet(StyleSheet);
+
+//    QFile styleFile("/home/fab/prj/tagqt8/stylesheet.qss");
+//    styleFile.open(QFile::ReadOnly);
+//    QString style(styleFile.readAll());
+//    setStyleSheet(style);
+
+//    QFile qf(":/test.qss");
+//    qf.open(QFile::ReadWrite);
+//    qf.write("test2");
+//    qf.close();
+
+//    QDir q1 = QDir::currentPath();
+//    std::cerr << q1.absolutePath().toStdString() << std::endl;
+//    QDir qf_app_pathdir(QString::frgomStdString(conf->map_conf["app_pathdir"]));
+    QFile qf_styleFile(QString::fromStdString(conf->map_conf["app_pathdir"]) + QDir::separator() + QString::fromStdString("stylesheet.qss"));
+//    std::cerr << "debug - line: " << __LINE__ << " - file: " << __FILE__ << std::endl;
+    qf_styleFile.open(QFile::ReadOnly);
+    QString qs(qf_styleFile.readAll());
+    setStyleSheet(qs);
+//    std::cerr << qf_styleFile.fileName().toStdString();
+
+
+//    QDir dir(".");
+
+//    foreach(QFileInfo item, dir.entryInfoList() )
+//    {
+//        if(item.isDir())
+//             qDebug() << "Dir: " << item.absoluteFilePath();
+//        if(item.isFile())
+//             qDebug() << "File: " << item.absoluteFilePath();
 //    }
-//    tv_tags = new TV_Tags(this);
-//    tv_tags->db = db;
-//    tv_tags->add_tags(tags);
-//    tv_tags->conf = conf;
-//    tv_tags->expandAll();
 
 
-//    QSplitter *vsplit_tags = new QSplitter;
-//    vsplit_tags->setOrientation(Qt::Vertical);
-
-//    lbl_seltag = new QLabel();//    lv_tag = new LV_Tag();
-
-//    vsplit_tags->addWidget(tv_tags);
-//    vsplit_tags->addWidget(lbl_seltag);
-//    vsplit_tags->setStretchFactor(0, 1);
-//    vsplit_tags->setStretchFactor(1, 0);
-
-////    split_tags_fils->addWidget(trevie_tags);
-//    hsplit_tags_imgs->addWidget(vsplit_tags);
-//    hlay_tags_imgs->addWidget(hsplit_tags_imgs);
+// -------------------------------
+// -------------------------------
 
 
-//    /*
-//     * -------------------
-//     * Thumbnails Listview
-//     * -------------------
-//     */
-//    lv_imgs = new LV_Imgs(this);
-////    lstvie_obs->setViewMode(QListWidget::IconMode);
-////    lstvie_obs->setIconSize(QSize(200,200));
-////    lstvie_obs->setResizeMode(QListWidget::Adjust);
-//    lv_imgs->init();
-////    QStandardItemModel *model = new QStandardItemModel(lv_imgs);
-////    lv_imgs->setModel(model);
-////    lv_imgs->model = model;
-////    lv_imgs->setViewMode(QListView::IconMode);
-////    lv_imgs->setAcceptDrops(true);
+//    connect(trw_tags, &TreWidTags::clicked, this, &MainWindow::on_trw_tags_clicked);
+//    connect(trw_tags, &TreWidTags::myrightClicked, this, &MainWindow::on_trw_tags_rightClicked);
+//    connect(trw_tags, SIGNAL(myrightClicked()), this, SLOT(on_trw_tags_rightClicked()));
 
-//    lv_imgs->conf = conf;
-//    lv_imgs->setSpacing(8);
-//    lv_imgs->db = db;
-
-////    connect(lv_imgs, SIGNAL(clicked(QModelIndex)), this, SLOT(on_lv_img_doubleClicked(QModelIndex)));
-////    connect(lv_imgs, &LV_Imgs::doubleClicked, this, &MainWindow::on_lv_img_doubleClicked);
-////        connect(lv_imgs, &LV_Imgs::doubleClicked, this, &abc);
-////        connect(lv_imgs, &LV_Imgs::doubleClicked, this, &MainWindow::on_lv_img_doubleClicked);
-//    connect(lv_imgs, &LV_Imgs::doubleClicked, lv_imgs, &LV_Imgs::on_lv_img_doubleClicked);
-
-////    QSplitter *split_imgs = new QSplitter;
-////    split_imgs->setOrientation(Qt::Vertical);
-
-////    lbl_date = new QLabel();
-
-////    split_imgs->addWidget(lv_imgs);
-////    split_imgs->addWidget(lbl_date);
-////    split_imgs->setStretchFactor(0, 1);
-////    split_imgs->setStretchFactor(1, 0);
+    //    connect(trw_tags, &TreWidTags::rightClicked, this, &MainWindow::on_trw_tags_rightClicked);
+//    connect(trw_tags, &TreWidTags::mousePressEvent, this, &MainWindow::on_trw_tags_mousePressEvent);
+//    connect(btn_refresh, &QPushButton::clicked, this, &MainWindow::on_btn_refresh_Clicked);
+//    connect(btn_untagged, &QPushButton::clicked, this, &MainWindow::on_btn_untagged_Clicked);
+//    connect(trevie_fils, &TreVieFils::doubleClicked, this, &MainWindow::on_trevie_fils_DoubleClicked);
+//    connect(trewid_tags, &TreWidTags::itemSelectionChanged, &TreWidTags::itemSelectionChanged);
+//    connect(trevie_tags, &TreVieTags::doubleClicked, this, &MainWindow::on_TreVieDoubleClicked);
 
 
-//    QSplitter *hsplit_imgs = new QSplitter;
-////    vsplit_imgs->setOrientation(Qt::Vertical);
-//    hsplit_imgs->setOrientation(Qt::Horizontal);
-////    lbl_imgdate = new QLabel("lbl_imgdate");
-////    QString lbl_css = "QLabel { background-color : red; color : blue; }";
-////    lbl_imgdate->setStyleSheet("QLabel { background-color : red; color : blue; }");
-////    lbl_imgdate->setStyleSheet(lbl_css);
-//    hsplit_imgs->addWidget(lv_imgs);
-
-//    lv_imginfo = new LV_ImgInfo();
-//    lv_imginfo->init();
-
-////    QWidget *wid_img_info = new QWidget;
-////    QHBoxLayout *hlay_img_info = new QHBoxLayout;
-////    wid_img_info->setLayout(hlay_img_info);
-////    lbl_imgtag1 = new QLabel("lbl_imgtag1");
-////    lbl_imgtag1->setStyleSheet(lbl_css);
-////    hlay_img_info->addWidget(lbl_imgdate);
-////    hlay_img_info->addWidget(lbl_imgtag1);
-////    hlay_img_info->addStretch(1);
-//    hsplit_imgs->addWidget(lv_imginfo);
-
-//    hsplit_imgs->setStretchFactor(0, 1);
-//    hsplit_imgs->setStretchFactor(1, 0);
-
-//    hsplit_tags_imgs->addWidget(hsplit_imgs);
-//    hsplit_tags_imgs->setStretchFactor(0, 0);
-//    hsplit_tags_imgs->setStretchFactor(1, 1);
-
-///*
-// * LAYOUT
-// *
-// * QWidget *window
-// *   QVBoxLayout *vlay_main
-// *     QSplitter *vsplit_main
-// *       QWidget *wid_tags_imgs
-// *         QHBoxLayout *hlay_tags_imgs
-// *           QSplitter *hsplit_tags_imgs
-// *             QSplitter *vsplit_tags
-// *               tv_tags = new TV_Tags(this);
-// *               lbl_seltag = new QLabel();
-// *             QSplitter *hsplit_imgs
-// *               lv_imgs = new LV_Imgs(this);
-// *               lv_imginfo = new QListView();
-// *       QWidget *wid_info
-// *         QVBoxLayout *vlay_btns_info
-// *           QHBoxLayout *hlay_btns
-// *             lbl_markedtagid = new QLabel();
-// *             lbl_markedtagdes = new QLabel();
-// *             lbl_msg = new QLabel();
-// *             lbl_copied_tags = new QLabel();
-// *           pb = new QProgressBar();
-// *           QHBoxLayout *hlay_info
-// *             QLabel *lbl_info_tagssize = new QLabel();
-// *             QLabel *lbl_info_nfils_lbl = new QLabel("num fils:");
-// *             lbl_info_nfils_n = new QLabel();
-// *
-// */
-
-
-
-
-//    // ----------------
-//    // Info frame
-//    // ----------------
-//    QVBoxLayout *vlay_btns_info = new QVBoxLayout;
-//    QHBoxLayout *hlay_info = new QHBoxLayout;
-
-//    // ----------------
-//    // -- Buttons
-//    // ----------------
-//    QHBoxLayout *hlay_btns = new QHBoxLayout;
-
-////    /*
-////     * Refresh treeview
-////     */
-////    QPushButton *btn_refresh = new QPushButton("refresh");
-////    btn_refresh->setStyleSheet("QPushButton:hover { color : red }");
-////    hbox_btns->addWidget(btn_refresh);
-
-////    QPushButton *btn_untagged = new QPushButton("untagged");
-////    hbox_btns->addWidget(btn_untagged);
-
-////    lbl_markedtaglbl = new QLabel();
-////    lbl_markedtaglbl->setText("marked tag");
-//////    lbl_markedtaglbl->setStyleSheet("QLabel { background-color : blue; color : white; }");
-////    hbox_btns->addWidget(lbl_markedtaglbl);
-
-//    lbl_markedtagid = new QLabel();
-//    lbl_markedtagid->setText("");
-////    lbl_markedtagid->setStyleSheet("QLabel { background-color : blue; color : white; }");
-//    hlay_btns->addWidget(lbl_markedtagid);
-
-//    lbl_markedtagdes = new QLabel();
-//    lbl_markedtagdes->setText("");
-////    lbl_markedtagid->setStyleSheet("QLabel { background-color : green; color : white; }");
-//    hlay_btns->addWidget(lbl_markedtagdes);
-
-//    lbl_msg = new QLabel();
-//    lbl_msg->setText("");
-////    lbl_markedtagid->setStyleSheet("QLabel { background-color : black; color : white; }");
-//    hlay_btns->addWidget(lbl_msg);
-
-//    lbl_copied_tags = new QLabel();
-//    lbl_copied_tags->setText("");
-////    lbl_markedtagid->setStyleSheet("QLabel { background-color : black; color : white; }");
-//    hlay_btns->addWidget(lbl_copied_tags);
-
-//    hlay_btns->addStretch(1);
-
-//    // ----------------
-//    // -- Progress bar
-//    // ----------------
-//    pb = new QProgressBar();
-
-//    // ----------------
-//    // -- Info line - tagsize
-//    // ----------------
-//    QLabel *lbl_info_tagssize = new QLabel();
-//    lbl_info_tagssize->setText("tags:" + QString::number(tags.size()));
-//    hlay_info->addWidget(lbl_info_tagssize);
-
-
-//    // Show number of fils in lstvie
-//    QLabel *lbl_info_nfils_lbl = new QLabel("num fils:");
-//    hlay_info->addWidget(lbl_info_nfils_lbl);
-//    lbl_info_nfils_n = new QLabel();
-//    lbl_info_nfils_n->setText("0");
-//    hlay_info->addWidget(lbl_info_nfils_n);
-
-//    hlay_info->addStretch(1);
-
-//    vlay_btns_info->addLayout(hlay_btns);
-//    vlay_btns_info->addWidget(pb);
-//    vlay_btns_info->addLayout(hlay_info);
-
-
-
-//    QWidget *wid_tags_imgs = new QWidget;
-//    wid_tags_imgs->setLayout(hlay_tags_imgs);
-
-//    QWidget *wid_info = new QWidget;
-//    wid_info->setLayout(vlay_btns_info);
-
-//    vsplit_main->addWidget(wid_tags_imgs);
-//    vsplit_main->addWidget(wid_info);
-//    vsplit_main->setStretchFactor(0, 1);
-//    vsplit_main->setStretchFactor(1, 0);
-//    vlay_main->addWidget(vsplit_main);
-
-//    QWidget *window = new QWidget();
-//    window->setLayout(vlay_main);
-
-//    // Set QWidget as the central layout of the main window
-//    setCentralWidget(window);
-
-
-
-//    // STYLESHEETS
-//////    setStyleSheet("QTreeView:item:hover { border: 1px solid #6a6ea9; background: lightblue;}");
-////    QFile File(":/stylesheet.qss");
-////    File.open(QFile::ReadOnly);
-////    QString StyleSheet = QLatin1Strging(File.readAll());
-////    setStyleSheet(StyleSheet);
-
-////    QFile styleFile("/home/fab/prj/tagqt8/stylesheet.qss");
-////    styleFile.open(QFile::ReadOnly);
-////    QString style(styleFile.readAll());
-////    setStyleSheet(style);
-
-////    QFile qf(":/test.qss");
-////    qf.open(QFile::ReadWrite);
-////    qf.write("test2");
-////    qf.close();
-
-////    QDir q1 = QDir::currentPath();
-////    std::cerr << q1.absolutePath().toStdString() << std::endl;
-////    QDir qf_app_pathdir(QString::frgomStdString(conf->map_conf["app_pathdir"]));
-//    QFile qf_styleFile(QString::fromStdString(conf->map_conf["app_pathdir"]) + QDir::separator() + QString::fromStdString("stylesheet.qss"));
-////    std::cerr << "debug - line: " << __LINE__ << " - file: " << __FILE__ << std::endl;
-//    qf_styleFile.open(QFile::ReadOnly);
-//    QString qs(qf_styleFile.readAll());
-//    setStyleSheet(qs);
-////    std::cerr << qf_styleFile.fileName().toStdString();
-
-
-////    QDir dir(".");
-
-////    foreach(QFileInfo item, dir.entryInfoList() )
-////    {
-////        if(item.isDir())
-////             qDebug() << "Dir: " << item.absoluteFilePath();
-////        if(item.isFile())
-////             qDebug() << "File: " << item.absoluteFilePath();
-////    }
-
-
-//// -------------------------------
-//// -------------------------------
-
-
-////    connect(trw_tags, &TreWidTags::clicked, this, &MainWindow::on_trw_tags_clicked);
-////    connect(trw_tags, &TreWidTags::myrightClicked, this, &MainWindow::on_trw_tags_rightClicked);
-////    connect(trw_tags, SIGNAL(myrightClicked()), this, SLOT(on_trw_tags_rightClicked()));
-
-//    //    connect(trw_tags, &TreWidTags::rightClicked, this, &MainWindow::on_trw_tags_rightClicked);
-////    connect(trw_tags, &TreWidTags::mousePressEvent, this, &MainWindow::on_trw_tags_mousePressEvent);
-////    connect(btn_refresh, &QPushButton::clicked, this, &MainWindow::on_btn_refresh_Clicked);
-////    connect(btn_untagged, &QPushButton::clicked, this, &MainWindow::on_btn_untagged_Clicked);
-////    connect(trevie_fils, &TreVieFils::doubleClicked, this, &MainWindow::on_trevie_fils_DoubleClicked);
-////    connect(trewid_tags, &TreWidTags::itemSelectionChanged, &TreWidTags::itemSelectionChanged);
-////    connect(trevie_tags, &TreVieTags::doubleClicked, this, &MainWindow::on_TreVieDoubleClicked);
-
-
-//    Magick::InitializeMagick(".");
+    Magick::InitializeMagick(".");
 
 }
 
